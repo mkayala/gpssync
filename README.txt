@@ -53,6 +53,18 @@ following java libraries:
   http://joda-time.sourceforge.net/
 - probably something else I forgot 
 
+## Binary dependencies
+You need a couple of external executables to talk to Garmin devices. 
+- gant will talk to the wireless ANT devices. It is also surprisingly
+  hard to locate a working copy. A fork that worked for me lives at 
+    https://github.com/jamesarbrown/Gant
+  The Makefile didn't work for me, though -- the -lpthread option
+  needed to be at the *end* of the last gcc command, rather than the
+  beginning. 
+- gpsbabel will talk to usb-based Garmin devices, and is also useful
+  for converting the TCX that gant produces into GPX.
+    http://www.gpsbabel.org/ 
+
 ## Files to know about
 You need a base directory containing these things
 gpx/ -- a directory of gpx files
