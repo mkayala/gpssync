@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx
+  version="1.0"
+  creator="GPSBabel - http://www.gpsbabel.org"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns="http://www.topografix.com/GPX/1/0"
+  xsi:schemaLocation="http://www.topografix.com/GPX/1/0 http://www.topografix.com/GPX/1/0/gpx.xsd">
+<time>2012-09-09T04:41:30Z</time>
+<bounds minlat="45.515576400" minlon="-122.690323300" maxlat="45.515679600" maxlon="-122.689837000"/>
+<wpt lat="45.515672400" lon="-122.689837000">
+  <ele>70.313477</ele>
+  <time>2012-09-09T04:37:44Z</time>
+  <name>LAP001</name>
+  <cmt>LAP001</cmt>
+  <desc>LAP001</desc>
+</wpt>
+<wpt lat="45.515663100" lon="-122.690210300">
+  <ele>57.335815</ele>
+  <time>2012-09-09T04:38:22Z</time>
+  <name>LAP002</name>
+  <cmt>LAP002</cmt>
+  <desc>LAP002</desc>
+</wpt>
+<trk>
+  <name>2012-09-09T04:37:42Z</name>
+<trkseg>
+<trkpt lat="45.515672400" lon="-122.689837000">
+  <ele>70.313477</ele>
+  <time>2012-09-09T04:37:44Z</time>
+</trkpt>
+<trkpt lat="45.515679600" lon="-122.689945400">
+  <ele>64.065063</ele>
+  <time>2012-09-09T04:37:52Z</time>
+</trkpt>
+<trkpt lat="45.515679000" lon="-122.689973000">
+  <ele>63.103638</ele>
+  <time>2012-09-09T04:37:54Z</time>
+</trkpt>
+<trkpt lat="45.515666700" lon="-122.690139900">
+  <ele>58.297119</ele>
+  <time>2012-09-09T04:38:16Z</time>
+</trkpt>
+<trkpt lat="45.515666800" lon="-122.690180200">
+  <ele>57.335815</ele>
+  <time>2012-09-09T04:38:19Z</time>
+</trkpt>
+<trkpt lat="45.515663100" lon="-122.690210300">
+  <ele>57.335815</ele>
+  <time>2012-09-09T04:38:22Z</time>
+</trkpt>
+<trkpt lat="45.515657400" lon="-122.690240400">
+  <ele>55.413086</ele>
+  <time>2012-09-09T04:38:25Z</time>
+</trkpt>
+<trkpt lat="45.515623200" lon="-122.690275100">
+  <ele>54.932373</ele>
+  <time>2012-09-09T04:38:29Z</time>
+</trkpt>
+<trkpt lat="45.515603000" lon="-122.690298500">
+  <ele>54.451782</ele>
+  <time>2012-09-09T04:38:31Z</time>
+</trkpt>
+<trkpt lat="45.515576400" lon="-122.690323300">
+  <ele>53.490479</ele>
+  <time>2012-09-09T04:38:37Z</time>
+</trkpt>
+</trkseg>
+</trk>
+</gpx>
