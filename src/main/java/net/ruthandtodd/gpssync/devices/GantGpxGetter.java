@@ -1,4 +1,4 @@
-package net.ruthandtodd.gpssync.services;
+package net.ruthandtodd.gpssync.devices;
 
 import net.ruthandtodd.gpssync.GpssyncConfig;
 import net.ruthandtodd.gpssync.io.FileUtils;
@@ -10,7 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-public class GantGpxGetter {
+public class GantGpxGetter implements DeviceInterface {
 
     public List<String> getNewestActivities() {
         Set<String> beforeFileNames = new HashSet<String>();

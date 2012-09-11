@@ -3,7 +3,7 @@ package net.ruthandtodd.gpssync.runner;
 import net.ruthandtodd.gpssync.model.Activity;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
-import net.ruthandtodd.gpssync.services.GantGpxGetter;
+import net.ruthandtodd.gpssync.devices.GantGpxGetter;
 import net.ruthandtodd.gpssync.services.RunkeeperService;
 import net.ruthandtodd.gpssync.io.FileUtils;
 import net.ruthandtodd.gpssync.services.StravaService;
