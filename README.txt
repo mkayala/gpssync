@@ -15,6 +15,12 @@ software to be used as a GUI for things like bulk marking some
 activities to be uploaded to one service or another, or adding
 a reference something old by hand. 
 
+I'm too lazy to add copyright code to all of this, but I intend it to
+be as reusable as possible. With attribution, if possible, but
+whatever. There isn't a ton of good open source code against the
+RunKeeper HealthGraph API, so if this is useful to anyone writing
+something cool, that's great. 
+
 *I have recently become aware that this part can also be done here: 
   http://runkeeper.com/exportDataForm 
 
