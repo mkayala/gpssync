@@ -6,7 +6,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import net.divbyzero.gpx.*;
 import net.divbyzero.gpx.parser.ParsingException;
+import net.ruthandtodd.gpssync.io.GPXWriter;
 import net.ruthandtodd.gpssync.model.Activity;
+import net.ruthandtodd.gpssync.model.GPXTools;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
 import org.apache.http.client.HttpClient;
@@ -161,7 +163,7 @@ public class RunkeeperService {
         List<GpxToJsonThing> activitiesForUser = getActivitiesForUser(user, -1);
         for(GpxToJsonThing thing : activitiesForUser){
             GPX gpx = wsg84ToGPS(thing);
-
+            GPXWriter.writeGpxDateBasedName(gpx);
         }
 
     }
@@ -254,7 +256,6 @@ public class RunkeeperService {
         return success;
     }
 
-    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss");
     public static Duration noTwoWithin = new Duration(1000);
 
     @JsonIgnoreProperties(ignoreUnknown = true)
@@ -374,12 +375,18 @@ public class RunkeeperService {
         }
     }
 
+
+    private static DateTimeFormatter fmt = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss");
     public static GPX wsg84ToGPS(GpxToJsonThing jsonThing) {
         GPX gpx = new GPX();
         Track track = new Track();
         TrackSegment currentSegment = new TrackSegment();
         track.addSegment(currentSegment);
         DateTime start = DateTime.parse(jsonThing.start_time, fmt);
+        DateTimeZone timeZone = TimeZoneService.getDateTimeZone(jsonThing.getPath()[0].getLatitude(), jsonThing.getPath()[0].getLongitude());
+        start = start.withZoneRetainFields(timeZone);
+        start = start.withZone(DateTimeZone.UTC);
+
         for (Wsg84Pt pt : jsonThing.getPath()) {
             Waypoint waypoint = new Waypoint();
             Coordinate coordinate = new Coordinate();
@@ -387,7 +394,7 @@ public class RunkeeperService {
             coordinate.setLongitude(pt.longitude);
             waypoint.setCoordinate(coordinate);
             waypoint.setElevation(pt.getAltitude());
-            waypoint.setTime(start.plusMillis((int) Math.round(1000 * pt.getTimestamp())).toDate());
+            waypoint.setTime(GPXTools.getDateForGpx(start.plusMillis((int) Math.round(1000 * pt.getTimestamp()))));
             currentSegment.addWaypoint(waypoint);
             if (pt.getType().equals("pause")) {
                 currentSegment = new TrackSegment();
@@ -430,10 +437,10 @@ public class RunkeeperService {
                     double lon = point.getCoordinate().getLongitude();
 
                     if (startTime != null)
-                        secondsSinceStart = new Duration(startTime, new DateTime(point.getTime()).withZoneRetainFields(DateTimeZone.UTC)).getMillis() / 1000d;
+                        secondsSinceStart = new Duration(startTime, GPXTools.getDateTimeFromGpx(point.getTime())).getMillis() / 1000d;
                     if (!started) {
                         started = true;
-                        startTime = new DateTime(point.getTime()).withZoneRetainFields(DateTimeZone.UTC);
+                        startTime = GPXTools.getDateTimeFromGpx(point.getTime());
                         pathString.add(new Wsg84Pt(secondsSinceStart, "start", lat, lon, ele));
                     } else if (paused) {
                         pathString.add(new Wsg84Pt(secondsSinceStart, "resume", lat, lon, ele));
