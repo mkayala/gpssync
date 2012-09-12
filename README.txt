@@ -46,7 +46,7 @@ You need to manually download the following java library:
 A good way to do this is:
 $ svn checkout http://jgpx.googlecode.com/svn/trunk/ jgpx-read-only
 $ mv jgpx-read-only/src/net/divbyzero src/main/java/net
-$ rm -rf src/main/net/divbyzero/gpx/test
+$ rm -rf src/main/net/divbyzero/gpx/tests
 $ rm -rf jgpx-read-only
 
 ## Binary dependencies
