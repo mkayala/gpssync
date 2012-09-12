@@ -437,10 +437,10 @@ public class RunkeeperService {
                     double lon = point.getCoordinate().getLongitude();
 
                     if (startTime != null)
-                        secondsSinceStart = new Duration(startTime, GPXTools.getDateTimeFromGpx(point.getTime())).getMillis() / 1000d;
+                        secondsSinceStart = new Duration(startTime, GPXTools.getUtcDateTimeFromGpx(point.getTime())).getMillis() / 1000d;
                     if (!started) {
                         started = true;
-                        startTime = GPXTools.getDateTimeFromGpx(point.getTime());
+                        startTime = GPXTools.getUtcDateTimeFromGpx(point.getTime());
                         pathString.add(new Wsg84Pt(secondsSinceStart, "start", lat, lon, ele));
                     } else if (paused) {
                         pathString.add(new Wsg84Pt(secondsSinceStart, "resume", lat, lon, ele));
