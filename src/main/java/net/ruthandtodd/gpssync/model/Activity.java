@@ -11,13 +11,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-/**
-* Created with IntelliJ IDEA.
-* User: todd
-* Date: 9/10/12
-* Time: 9:45 PM
-* To change this template use File | Settings | File Templates.
-*/
 public class Activity {
     private DateTime startTime;
     private Model.ActivityType type;
@@ -37,7 +30,7 @@ public class Activity {
         this.flaggedForUpToRunkeeper = flaggedForUpToRunkeeper;
         this.flaggedForUpToStrava = flaggedForUpToStrava;
         try {
-            this.startTime = new DateTime(getAsGpx().getTracks().get(0).startingTime());
+            this.startTime = GPXTools.getStartTime(getAsGpx());
         } catch (ParsingException e) {
             e.printStackTrace();
         }

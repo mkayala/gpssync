@@ -1,5 +1,6 @@
 package net.ruthandtodd.gpssync.model;
 
+import net.divbyzero.gpx.GPX;
 import net.ruthandtodd.gpssync.io.GPXWriter;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -22,6 +23,10 @@ public class GPXTools {
 
     public static DateTime getUtcDateTimeFromGpx(Date date){
         return new DateTime(date).withZoneRetainFields(DateTimeZone.UTC);
+    }
+
+    public static DateTime getStartTime(GPX gpx){
+        return getUtcDateTimeFromGpx(gpx.getTracks().get(0).startingTime());
     }
 
 }

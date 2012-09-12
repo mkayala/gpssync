@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.ruthandtodd.gpssync.services.RunkeeperService;
+import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpPost;
