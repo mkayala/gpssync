@@ -17,6 +17,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -449,6 +450,8 @@ public class RunkeeperService {
             }
 
         }
+        DateTimeZone localTimeZone = TimeZoneService.getDateTimeZone(pathString.get(0).getLatitude(), pathString.get(0).getLongitude());
+        startTime = startTime.toDateTime(localTimeZone);
         return new GpxToJsonThing(pathString.toArray(new Wsg84Pt[pathString.size()]), startTime, secondsSinceStart);
     }
 
