@@ -17,6 +17,7 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -429,10 +430,10 @@ public class RunkeeperService {
                     double lon = point.getCoordinate().getLongitude();
 
                     if (startTime != null)
-                        secondsSinceStart = new Duration(startTime, new DateTime(point.getTime())).getMillis() / 1000d;
+                        secondsSinceStart = new Duration(startTime, new DateTime(point.getTime()).withZoneRetainFields(DateTimeZone.UTC)).getMillis() / 1000d;
                     if (!started) {
                         started = true;
-                        startTime = new DateTime(point.getTime());
+                        startTime = new DateTime(point.getTime()).withZoneRetainFields(DateTimeZone.UTC);
                         pathString.add(new Wsg84Pt(secondsSinceStart, "start", lat, lon, ele));
                     } else if (paused) {
                         pathString.add(new Wsg84Pt(secondsSinceStart, "resume", lat, lon, ele));
@@ -449,6 +450,8 @@ public class RunkeeperService {
             }
 
         }
+        DateTimeZone localTimeZone = TimeZoneService.getDateTimeZone(pathString.get(0).getLatitude(), pathString.get(0).getLongitude());
+        startTime = startTime.withZone(localTimeZone);
         return new GpxToJsonThing(pathString.toArray(new Wsg84Pt[pathString.size()]), startTime, secondsSinceStart);
     }
 
