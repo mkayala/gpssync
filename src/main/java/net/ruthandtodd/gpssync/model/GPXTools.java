@@ -20,7 +20,7 @@ public class GPXTools {
         return null;
     }
 
-    public static DateTime getDateTimeFromGpx(Date date){
+    public static DateTime getUtcDateTimeFromGpx(Date date){
         return new DateTime(date).withZoneRetainFields(DateTimeZone.UTC);
     }
 
