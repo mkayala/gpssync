@@ -26,7 +26,7 @@ public class GPXWriter {
     public static DateTimeFormatter fileNameFmt = DateTimeFormat.forPattern("yyyyMMdd.HH.mm.ss");
 
     public static void writeGpxDateBasedName(GPX gpx){
-        DateTime time = GPXTools.getUtcDateTimeFromGpx(gpx.getTracks().get(0).getSegments().get(0).getWaypoints().get(0).getTime());
+        DateTime time = GPXTools.getStartTime(gpx);
         String fileName = time.toString(fileNameFmt);
         String filePath = GpssyncConfig.getConfig().getGpxDirectoryPath() + fileName;
         writeGpx(filePath, gpx);
