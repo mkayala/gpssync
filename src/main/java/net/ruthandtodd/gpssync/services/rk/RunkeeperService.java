@@ -3,9 +3,9 @@ package net.ruthandtodd.gpssync.services.rk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Optional;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.ImmutableBiMap;
-import com.google.common.collect.ImmutableMap;
 import net.divbyzero.gpx.GPX;
 import net.divbyzero.gpx.parser.ParsingException;
 import net.ruthandtodd.gpssync.io.GPXWriter;
@@ -14,6 +14,7 @@ import net.ruthandtodd.gpssync.model.GPXTools;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.HttpResponseException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -30,7 +31,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 public class RunkeeperService {
 
@@ -109,13 +109,18 @@ public class RunkeeperService {
             if (!Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
                     noTwoWithin)) {
                 System.out.println(GPXTools.getStartTime(gpx));
-                String newFilename = GPXWriter.writeGpxDateBasedName(gpx);
-                String runKeeperType = thing.getType();
-                Model.ActivityType type = Model.ActivityType.NONE;
-                if (typeMap.inverse().containsKey(runKeeperType)) {
-                    type = typeMap.inverse().get(runKeeperType);
+                Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx);
+                if (newFilename.isPresent()) {
+                    String runKeeperType = thing.getType();
+                    Model.ActivityType type = Model.ActivityType.NONE;
+                    if (typeMap.inverse().containsKey(runKeeperType)) {
+                        type = typeMap.inverse().get(runKeeperType);
+                    }
+                    Activity activity = Model.getModel().addActivityForUser(user, newFilename.get(), type);
+                    activity.addServiceKnows(Model.Service.RUNKEEPER);
+                } else {
+                    System.out.println("Error writing to file. :(");
                 }
-                Model.getModel().addActivityForUser(user, newFilename, type);
                 System.out.println("...");
             }
         }
@@ -125,26 +130,23 @@ public class RunkeeperService {
         List<GpxToJsonThing> retVal = new LinkedList<GpxToJsonThing>();
         try {
             String fitnessUri = getFirstPageOfFitnessActivities(user);
-            HttpGet get = new HttpGet(apiBasePath + fitnessUri);
-            get.setHeader("Authorization", "Bearer " + user.getRunkeeperAuth());
-            get.setHeader("Accept", "*/*");
+
 
             HttpClient httpclient = new DefaultHttpClient();
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
 
-            String responseBody = httpclient.execute(get, responseHandler);
+            String responseBody = getFromRunkeeperApi(fitnessUri, user, httpclient, responseHandler);
+
+            System.out.println(responseBody);
 
             ObjectMapper mapper = new ObjectMapper();
             RunkeeperFitnessPage runkeeperFitnessPage = mapper.readValue(responseBody, RunkeeperFitnessPage.class);
             do {
                 for (FitnessItem item : runkeeperFitnessPage.items) {
-                    get = new HttpGet(apiBasePath + item.uri);
-                    get.setHeader("Authorization", "Bearer " + user.getRunkeeperAuth());
-                    get.setHeader("Accept", "*/*");
-
-                    responseBody = httpclient.execute(get, responseHandler);
-
-                    if (max <= 0 || retVal.size() < max) {
+                    responseBody = getFromRunkeeperApi(item.getUri(), user, httpclient, responseHandler);
+                    if (responseBody == null) {
+                        System.out.println("We seem to be unable to retrieve " + item.toString());
+                    } else if (max <= 0 || retVal.size() < max) {
                         retVal.add(mapper.readValue(responseBody, GpxToJsonThing.class));
                     }
                 }
@@ -152,10 +154,7 @@ public class RunkeeperService {
                     break;
                 }
                 // get the next page
-                get = new HttpGet(apiBasePath + runkeeperFitnessPage.next);
-                get.setHeader("Authorization", "Bearer " + user.getRunkeeperAuth());
-                get.setHeader("Accept", "*/*");
-                responseBody = httpclient.execute(get, responseHandler);
+                responseBody = getFromRunkeeperApi(runkeeperFitnessPage.next, user, httpclient, responseHandler);
                 runkeeperFitnessPage = mapper.readValue(responseBody, RunkeeperFitnessPage.class);
             } while (runkeeperFitnessPage != null && runkeeperFitnessPage.next != null);
 
@@ -163,6 +162,35 @@ public class RunkeeperService {
             e.printStackTrace();
         }
         return retVal;
+    }
+
+    private String getFromRunkeeperApi(String path, User user, HttpClient httpclient, ResponseHandler<String> responseHandler) throws IOException, InterruptedException {
+        HttpGet get = new HttpGet(apiBasePath + path);
+        System.out.println(apiBasePath + path);
+        get.setHeader("Authorization", "Bearer " + user.getRunkeeperAuth());
+        get.setHeader("Accept", "*/*");
+        boolean done = false;
+        int retries = 0;
+        String responseBody = null;
+        while (!done) {
+            try {
+                responseBody = httpclient.execute(get, responseHandler);
+                done = true;
+            } catch (HttpResponseException hpe) {
+                int statusCode = hpe.getStatusCode();
+                if (!(statusCode == 500)) {
+                    done = true;
+                    hpe.printStackTrace();
+                } else {
+                    System.out.println("going to retry in three seconds ... ");
+                    Thread.sleep(3000);
+                }
+                if (retries++ >= 3)
+                    done = true;
+                else System.out.println(".");
+            }
+        }
+        return responseBody;
     }
 
     public boolean uploadTo(User user, Activity activity) {

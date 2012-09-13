@@ -117,7 +117,8 @@ public class Model {
         for (Activity a : allActivities) {
             DateTime first = time.isBefore(a.getStartTime()) ? time : a.getStartTime();
             DateTime second = time.isBefore(a.getStartTime()) ? a.getStartTime() : time;
-            if (within.isShorterThan(new Duration(first, second))) {
+            if (within.isLongerThan(new Duration(first, second))) {
+                System.out.println(first + " too close to " + second);
                 return true;
             }
         }
