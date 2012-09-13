@@ -4,7 +4,8 @@ import net.ruthandtodd.gpssync.model.Activity;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
 import net.ruthandtodd.gpssync.devices.GantGpxGetter;
-import net.ruthandtodd.gpssync.services.RunkeeperService;
+import net.ruthandtodd.gpssync.services.rk.GpxToJsonThing;
+import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 import net.ruthandtodd.gpssync.io.FileUtils;
 import net.ruthandtodd.gpssync.services.StravaService;
 
@@ -42,7 +43,7 @@ public class Runner {
             uploadMarked();
         } else if (command.equals("testSomething")) {
             User me = Model.getModel().getUserByName("todd");
-            List<RunkeeperService.GpxToJsonThing> activitiesForUser = new RunkeeperService().getActivitiesForUser(me, 1);
+            List<GpxToJsonThing> activitiesForUser = new RunkeeperService().getActivitiesForUser(me, 1);
             System.out.println(activitiesForUser.get(0).getStart_time());
         } else {
             System.out.println("Not sure what to do with command " + command);
