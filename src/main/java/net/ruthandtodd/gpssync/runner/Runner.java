@@ -43,8 +43,8 @@ public class Runner {
             uploadMarked();
         } else if (command.equals("testSomething")) {
             User me = Model.getModel().getUserByName("todd");
-            List<GpxToJsonThing> activitiesForUser = new RunkeeperService().getActivitiesForUser(me, 1);
-            System.out.println(activitiesForUser.get(0).getStart_time());
+             new RunkeeperService().downloadGpxFromRunkeeper(me);
+            //System.out.println(activitiesForUser.get(0).getStart_time());
         } else {
             System.out.println("Not sure what to do with command " + command);
             System.out.println("valid options include: ");

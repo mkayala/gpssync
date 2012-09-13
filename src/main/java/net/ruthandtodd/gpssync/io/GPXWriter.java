@@ -25,11 +25,12 @@ public class GPXWriter {
     public static DateTimeFormatter gpxTimeFmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     public static DateTimeFormatter fileNameFmt = DateTimeFormat.forPattern("yyyyMMdd.HH.mm.ss");
 
-    public static void writeGpxDateBasedName(GPX gpx){
+    public static String writeGpxDateBasedName(GPX gpx){
         DateTime time = GPXTools.getStartTime(gpx);
-        String fileName = time.toString(fileNameFmt);
+        String fileName = time.toString(fileNameFmt) + ".gpx";
         String filePath = GpssyncConfig.getConfig().getGpxDirectoryPath() + fileName;
         writeGpx(filePath, gpx);
+        return fileName;
     }
 
     public static void writeGpx(String path, GPX gpx) {

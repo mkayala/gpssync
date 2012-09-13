@@ -3,6 +3,8 @@ package net.ruthandtodd.gpssync.services.rk;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.ImmutableMap;
 import net.divbyzero.gpx.GPX;
 import net.divbyzero.gpx.parser.ParsingException;
@@ -47,8 +49,8 @@ public class RunkeeperService {
 
     private static final String ENCODING = "UTF-8";
 
-    private static Map<Model.ActivityType, String> typeMap =
-            ImmutableMap.of(
+    private static BiMap<Model.ActivityType, String> typeMap =
+            ImmutableBiMap.of(
                     Model.ActivityType.RUN, "Running",
                     Model.ActivityType.BIKE, "Cycling",
                     Model.ActivityType.HIKE, "Hiking",
@@ -105,8 +107,17 @@ public class RunkeeperService {
         for (GpxToJsonThing thing : activitiesForUser) {
             GPX gpx = GpxToJsonThing.toGpx(thing);
             if (!Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
-                                                     noTwoWithin))
-                GPXWriter.writeGpxDateBasedName(gpx);
+                    noTwoWithin)) {
+                System.out.println(GPXTools.getStartTime(gpx));
+                String newFilename = GPXWriter.writeGpxDateBasedName(gpx);
+                String runKeeperType = thing.getType();
+                Model.ActivityType type = Model.ActivityType.NONE;
+                if (typeMap.inverse().containsKey(runKeeperType)) {
+                    type = typeMap.inverse().get(runKeeperType);
+                }
+                Model.getModel().addActivityForUser(user, newFilename, type);
+                System.out.println("...");
+            }
         }
     }
 
@@ -132,6 +143,7 @@ public class RunkeeperService {
                     get.setHeader("Accept", "*/*");
 
                     responseBody = httpclient.execute(get, responseHandler);
+
                     if (max <= 0 || retVal.size() < max) {
                         retVal.add(mapper.readValue(responseBody, GpxToJsonThing.class));
                     }
