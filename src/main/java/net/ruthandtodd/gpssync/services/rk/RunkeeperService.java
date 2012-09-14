@@ -106,7 +106,7 @@ public class RunkeeperService {
         List<GpxToJsonThing> activitiesForUser = getActivitiesForUser(user, -1);
         for (GpxToJsonThing thing : activitiesForUser) {
             GPX gpx = GpxToJsonThing.toGpx(thing);
-            if (!Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
+            if (gpx != null && !Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
                     noTwoWithin)) {
                 System.out.println(GPXTools.getStartTime(gpx));
                 Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx);
