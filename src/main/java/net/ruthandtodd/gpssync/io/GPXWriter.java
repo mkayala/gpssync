@@ -1,5 +1,6 @@
 package net.ruthandtodd.gpssync.io;
 
+import com.google.common.base.Optional;
 import net.divbyzero.gpx.GPX;
 import net.divbyzero.gpx.Track;
 import net.divbyzero.gpx.TrackSegment;
@@ -25,14 +26,17 @@ public class GPXWriter {
     public static DateTimeFormatter gpxTimeFmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
     public static DateTimeFormatter fileNameFmt = DateTimeFormat.forPattern("yyyyMMdd.HH.mm.ss");
 
-    public static void writeGpxDateBasedName(GPX gpx){
+    public static Optional<String> writeGpxDateBasedName(GPX gpx) {
         DateTime time = GPXTools.getStartTime(gpx);
-        String fileName = time.toString(fileNameFmt);
+        String fileName = time.toString(fileNameFmt) + ".gpx";
         String filePath = GpssyncConfig.getConfig().getGpxDirectoryPath() + fileName;
-        writeGpx(filePath, gpx);
+        if (writeGpx(filePath, gpx))
+            return Optional.of(fileName);
+        else
+            return Optional.absent();
     }
 
-    public static void writeGpx(String path, GPX gpx) {
+    public static boolean writeGpx(String path, GPX gpx) {
         Element root = new Element("gpx");
         Document doc = new Document(root);
 
@@ -43,7 +47,7 @@ public class GPXWriter {
         root.setAttribute("creator", "gpssync");
 
         Namespace xsiNS =
-                Namespace.getNamespace(       "xsi",
+                Namespace.getNamespace("xsi",
                         "http://www.w3.org/2001/XMLSchema-instance");
 
         root.setAttribute(
@@ -84,8 +88,10 @@ public class GPXWriter {
         xmlOutput.setFormat(Format.getPrettyFormat());
         try {
             xmlOutput.output(doc, new FileWriter(path));
+            return true;
         } catch (IOException e) {
             e.printStackTrace();
+            return false;
         }
 
     }

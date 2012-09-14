@@ -128,29 +128,32 @@ public class GpxToJsonThing {
 
     public static GPX toGpx(GpxToJsonThing jsonThing) {
         GPX gpx = new GPX();
-        Track track = new Track();
-        TrackSegment currentSegment = new TrackSegment();
-        track.addSegment(currentSegment);
-        DateTime start = DateTime.parse(jsonThing.start_time, RunkeeperService.RUNKEEPER_TIME_FORMAT);
-        DateTimeZone timeZone = TimeZoneService.getDateTimeZone(jsonThing.getPath()[0].getLatitude(), jsonThing.getPath()[0].getLongitude());
-        start = start.withZoneRetainFields(timeZone);
-        start = start.withZone(DateTimeZone.UTC);
+        if (jsonThing.getPath().length > 0) {
+            Track track = new Track();
+            TrackSegment currentSegment = new TrackSegment();
+            track.addSegment(currentSegment);
+            DateTime start = DateTime.parse(jsonThing.start_time, RunkeeperService.RUNKEEPER_TIME_FORMAT);
+            DateTimeZone timeZone = TimeZoneService.getDateTimeZone(jsonThing.getPath()[0].getLatitude(), jsonThing.getPath()[0].getLongitude());
+            start = start.withZoneRetainFields(timeZone);
+            start = start.withZone(DateTimeZone.UTC);
 
-        for (Wsg84Pt pt : jsonThing.getPath()) {
-            Waypoint waypoint = new Waypoint();
-            Coordinate coordinate = new Coordinate();
-            coordinate.setLatitude(pt.latitude);
-            coordinate.setLongitude(pt.longitude);
-            waypoint.setCoordinate(coordinate);
-            waypoint.setElevation(pt.getAltitude());
-            waypoint.setTime(GPXTools.getDateForGpx(start.plusMillis((int) Math.round(1000 * pt.getTimestamp()))));
-            currentSegment.addWaypoint(waypoint);
-            if (pt.getType().equals("pause")) {
-                currentSegment = new TrackSegment();
-                track.addSegment(currentSegment);
+            for (Wsg84Pt pt : jsonThing.getPath()) {
+                Waypoint waypoint = new Waypoint();
+                Coordinate coordinate = new Coordinate();
+                coordinate.setLatitude(pt.latitude);
+                coordinate.setLongitude(pt.longitude);
+                waypoint.setCoordinate(coordinate);
+                waypoint.setElevation(pt.getAltitude());
+                waypoint.setTime(GPXTools.getDateForGpx(start.plusMillis((int) Math.round(1000 * pt.getTimestamp()))));
+                currentSegment.addWaypoint(waypoint);
+                if (pt.getType().equals("pause")) {
+                    currentSegment = new TrackSegment();
+                    track.addSegment(currentSegment);
+                }
             }
+            gpx.addTrack(track);
+            return gpx;
         }
-        gpx.addTrack(track);
-        return gpx;
+        return null;
     }
 }

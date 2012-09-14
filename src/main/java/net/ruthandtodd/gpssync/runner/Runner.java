@@ -41,10 +41,9 @@ public class Runner {
             addActivities(newFiles, Model.ActivityType.NONE);
         } else if (command.equals("uploadMarked")) {
             uploadMarked();
-        } else if (command.equals("testSomething")) {
-            User me = Model.getModel().getUserByName("todd");
-            List<GpxToJsonThing> activitiesForUser = new RunkeeperService().getActivitiesForUser(me, 1);
-            System.out.println(activitiesForUser.get(0).getStart_time());
+        } else if (command.equals("downloadFromRunKeeper")) {
+            String user = args[1];
+            downloadFromRunkeeper(user);
         } else {
             System.out.println("Not sure what to do with command " + command);
             System.out.println("valid options include: ");
@@ -129,6 +128,13 @@ public class Runner {
                     ss.uploadTo(user, activity);
             }
         }
+        model.save();
+    }
+
+    private static void downloadFromRunkeeper(String user) {
+        Model model = Model.getModel();
+        User me = model.getUserByName(user);
+        new RunkeeperService().downloadGpxFromRunkeeper(me);
         model.save();
     }
 
