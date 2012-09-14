@@ -39,9 +39,9 @@ public class RunkeeperService {
     public static final String grantType = "authorization_code";
 
     // url bits
-    public static final String authBaseUrl = "https://runkeeper.com/apps/";
-    public static final String tokenPath = "token";
-    public static final String authorizePath = "authorize";
+    public static final String authBaseUrl = "https://runkeeper.com/apps";
+    public static final String tokenPath = "/token";
+    public static final String authorizePath = "/authorize";
 
     public static final String apiBasePath = "http://api.runkeeper.com";
     public static final String userPath = "/user";
@@ -92,12 +92,10 @@ public class RunkeeperService {
                 + "&response_type=" + RunkeeperService.responseType;
     }
 
-    public String getFirstPageOfFitnessActivities(User user) throws IOException {
-        HttpGet get = new HttpGet(apiBasePath + userPath);
-        get.setHeader("Authorization", "Bearer " + user.getRunkeeperAuth());
+    public String getFirstPageOfFitnessActivities(User user) throws IOException, InterruptedException {
         HttpClient httpclient = new DefaultHttpClient();
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
-        String userGetResult = httpclient.execute(get, responseHandler);
+        String userGetResult = getFromRunkeeperApi(userPath, user, httpclient, responseHandler);
         JsonNode rootNode = new ObjectMapper().readValue(userGetResult, JsonNode.class);
         return rootNode.get(fitness_activities).asText();
     }
@@ -108,7 +106,7 @@ public class RunkeeperService {
             GPX gpx = GpxToJsonThing.toGpx(thing);
             if (gpx != null && !Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
                     noTwoWithin)) {
-                System.out.println(GPXTools.getStartTime(gpx));
+                System.out.println("Downloaded an activity at " + GPXTools.getStartTime(gpx) + " writing to file.");
                 Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx);
                 if (newFilename.isPresent()) {
                     String runKeeperType = thing.getType();
@@ -121,7 +119,6 @@ public class RunkeeperService {
                 } else {
                     System.out.println("Error writing to file. :(");
                 }
-                System.out.println("...");
             }
         }
     }
@@ -136,8 +133,6 @@ public class RunkeeperService {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
 
             String responseBody = getFromRunkeeperApi(fitnessUri, user, httpclient, responseHandler);
-
-            System.out.println(responseBody);
 
             ObjectMapper mapper = new ObjectMapper();
             RunkeeperFitnessPage runkeeperFitnessPage = mapper.readValue(responseBody, RunkeeperFitnessPage.class);
@@ -166,7 +161,7 @@ public class RunkeeperService {
 
     private String getFromRunkeeperApi(String path, User user, HttpClient httpclient, ResponseHandler<String> responseHandler) throws IOException, InterruptedException {
         HttpGet get = new HttpGet(apiBasePath + path);
-        System.out.println(apiBasePath + path);
+        System.out.println("Getting from RunKeeper " + apiBasePath + path);
         get.setHeader("Authorization", "Bearer " + user.getRunkeeperAuth());
         get.setHeader("Accept", "*/*");
         boolean done = false;
@@ -180,14 +175,14 @@ public class RunkeeperService {
                 int statusCode = hpe.getStatusCode();
                 if (!(statusCode == 500)) {
                     done = true;
+                    System.out.println("Unrecoverable error, giving up on this page.");
                     hpe.printStackTrace();
                 } else {
-                    System.out.println("going to retry in three seconds ... ");
+                    System.out.println("Got a 500: going to retry in three seconds ... ");
                     Thread.sleep(3000);
                 }
                 if (retries++ >= 3)
                     done = true;
-                else System.out.println(".");
             }
         }
         return responseBody;
@@ -211,7 +206,7 @@ public class RunkeeperService {
 
             String fitnessUri = getFirstPageOfFitnessActivities(user);
 
-            HttpPost post = new HttpPost(apiBasePath + fitnessUri); //userPath + fitnesActivities
+            HttpPost post = new HttpPost(apiBasePath + fitnessUri);
             post.setEntity(new StringEntity(jsonText));
 
             post.setHeader("Content-Type", "application/vnd.com.runkeeper.NewFitnessActivity+json");
@@ -222,8 +217,7 @@ public class RunkeeperService {
             ResponseHandler<String> responseHandler = new BasicResponseHandler();
 
             String responseBody = httpclient.execute(post, responseHandler);
-            System.out.println("Response from Runkeeper: \n" + responseBody);
-
+            System.out.println("Probably uploaded activity from " + GPXTools.getStartTime(gpx) + "to RunKeeper.");
             if (!activity.hasParticipant(user))
                 activity.addParticipant(user);
             activity.addServiceKnows(Model.Service.RUNKEEPER);
@@ -233,6 +227,9 @@ public class RunkeeperService {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            Thread.interrupted(); // show courtesy to the Javas.
         }
 
         return success;
