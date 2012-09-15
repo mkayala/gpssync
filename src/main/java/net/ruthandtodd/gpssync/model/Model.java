@@ -8,6 +8,8 @@ import java.util.*;
 
 public class Model {
 
+    public static final Duration noTwoWithin = new Duration(1000);
+
     public enum Service {
         RUNKEEPER, STRAVA
     }
