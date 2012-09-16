@@ -14,6 +14,7 @@ import net.ruthandtodd.gpssync.services.GantGpxGetter;
 import net.ruthandtodd.gpssync.services.StravaService;
 import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -54,35 +55,24 @@ public class Runner {
                             Model.noTwoWithin)) {
                         Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx, "file");
                         if (newFilename.isPresent()) {
-
-
                             Activity activity = Model.getModel().addActivityNoUser(newFilename.get(), Model.ActivityType.NONE);
 
                         } else {
                             System.out.println("Error writing to file. :(");
                         }
-
-                    } else {
-
                     }
                 } catch (ParsingException e) {
                     e.printStackTrace();
                 }
-
             }
-
-        } else if (command.equals("uploadMarked"))
-
-        {
+        } else if (command.equals("uploadMarked")) {
             uploadMarked();
-        } else if (command.equals("downloadFromRunKeeper"))
-
-        {
+        } else if (command.equals("downloadFromRunKeeper")) {
             String user = args[1];
             downloadFromRunkeeper(user);
-        } else
-
-        {
+        } else if (command.equals("retrieveFromWatch")) {
+            List<Activity> activities = addAllNewGantActivities();
+        } else {
             System.out.println("Not sure what to do with command " + command);
             System.out.println("valid options include: ");
             System.out.println("addAllToUser user [type]");
@@ -113,6 +103,14 @@ public class Runner {
 
     }
 
+    private static List<Activity> addAllNewGantActivities() {
+        Model model = Model.getModel();
+        List<String> newestActivities = new GantGpxGetter().getNewestActivities();
+        List<Activity> activities = addActivities(newestActivities, Model.ActivityType.NONE);
+        model.save();
+        return activities;
+    }
+
     private static Activity addAllNewGantActivitiesAndLastToUser(String username, Model.ActivityType type) {
         Model model = Model.getModel();
         List<String> newestActivities = new GantGpxGetter().getNewestActivities();
@@ -121,12 +119,15 @@ public class Runner {
             List<String> olderActivities = newestActivities.subList(0, newestActivities.size() - 1);
             addActivities(olderActivities, type);
         }
+        Activity activity = null;
         if (newestActivities.size() > 0) {
-            return addActivitiesToUserAsType(
+            activity = addActivitiesToUserAsType(
                     newestActivities.subList(newestActivities.size() - 1, newestActivities.size()),
                     username, type).get(0);
+
         }
-        return null;
+        model.save();
+        return activity;
     }
 
     private static List<Activity> addActivitiesToUserAsType(List<String> filenames, String username, Model.ActivityType type) {
