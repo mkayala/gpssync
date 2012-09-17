@@ -44,18 +44,19 @@ You need to manually download the following java library:
   http://code.google.com/p/jgpx/
 
 A good way to do this is:
-$ svn checkout http://jgpx.googlecode.com/svn/trunk/ jgpx-read-only
-$ mv jgpx-read-only/src/net/divbyzero src/main/java/net
-$ rm -rf src/main/net/divbyzero/gpx/tests
-$ rm -rf jgpx-read-only
+ svn checkout http://jgpx.googlecode.com/svn/trunk/ jgpx-read-only
+ mv jgpx-read-only/src/net/divbyzero src/main/java/net
+ rm -rf src/main/java/net/divbyzero/gpx/tests
+ rm -rf jgpx-read-only
 
 Then you should be able to compile with
 
-$ mvn assembly:single
+ mvn compile
+ mvn assembly:single
 
 And run with
 
-$ java -cp target/gpssync-0.1-jar-with-dependencies.jar \
+ java -cp target/gpssync-0.1-jar-with-dependencies.jar \
   -Dgpssync.basedir=[your base dir] net.ruthandtodd.gpssync.runner.Runner [command] [args]
 
 
