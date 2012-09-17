@@ -14,7 +14,6 @@ import net.ruthandtodd.gpssync.services.GantGpxGetter;
 import net.ruthandtodd.gpssync.services.StravaService;
 import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -32,13 +31,15 @@ public class Runner {
             Model.ActivityType aType = getType(type);
             addAllNewGantActivitiesToUser(user, aType);
         } else if (command.equals("addLatestToUser")) {
-            String user = args[1];
+            String userId = args[1];
             String type = args.length > 2 ? args[2] : "";
             Model.ActivityType aType = getType(type);
-            Activity activity = addAllNewGantActivitiesAndLastToUser(user, aType);
-            activity.setRkUploadFlag(true);
-            activity.setStravaUploadFlag(true);
-            uploadMarked();
+            User user = Model.getModel().getUserByName(userId);
+            Activity activity = addAllNewGantActivitiesAndLastToUser(userId, aType);
+            if (user.getRunkeeperAuth() != null && !user.getRunkeeperAuth().isEmpty())
+                new RunkeeperService().uploadTo(user, activity);
+            if (user.getStravaEmail() != null && !user.getStravaEmail().isEmpty())
+                new StravaService().uploadTo(user, activity);
         } else if (command.equals("addFromDirectory")) {
             String directory = args[1];
             File dFile = new File(directory);
@@ -48,15 +49,13 @@ public class Runner {
             }
             List<String> newFiles = FileUtils.unknownGpxInDirectory(directoryArg);
             for (String thing : newFiles) {
-                GPX gpx = null;
                 try {
-                    gpx = new JDOM().parse(new File(directoryArg + thing));
+                    GPX gpx = new JDOM().parse(new File(directoryArg + thing));
                     if (!Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
                             Model.noTwoWithin)) {
                         Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx, "file");
                         if (newFilename.isPresent()) {
-                            Activity activity = Model.getModel().addActivityNoUser(newFilename.get(), Model.ActivityType.NONE);
-
+                            Model.getModel().addActivityNoUser(newFilename.get(), Model.ActivityType.NONE);
                         } else {
                             System.out.println("Error writing to file. :(");
                         }
@@ -80,10 +79,7 @@ public class Runner {
             System.out.println("addFromDirectory path");
         }
         // just in case.
-        Model.getModel().
-
-                save();
-
+        Model.getModel().save();
     }
 
     private static Model.ActivityType getType(String type) {
