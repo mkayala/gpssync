@@ -21,7 +21,6 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicResponseHandler;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.joda.time.Duration;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
@@ -105,9 +104,9 @@ public class RunkeeperService {
         for (GpxToJsonThing thing : activitiesForUser) {
             GPX gpx = GpxToJsonThing.toGpx(thing);
             if (gpx != null && !Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
-                    noTwoWithin)) {
+                    Model.noTwoWithin)) {
                 System.out.println("Downloaded an activity at " + GPXTools.getStartTime(gpx) + " writing to file.");
-                Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx);
+                Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx, "rk");
                 if (newFilename.isPresent()) {
                     String runKeeperType = thing.getType();
                     Model.ActivityType type = Model.ActivityType.NONE;
@@ -116,8 +115,6 @@ public class RunkeeperService {
                     }
                     Activity activity = Model.getModel().addActivityForUser(user, newFilename.get(), type);
                     activity.addServiceKnows(Model.Service.RUNKEEPER);
-                } else {
-                    System.out.println("Error writing to file. :(");
                 }
             }
         }
@@ -234,8 +231,6 @@ public class RunkeeperService {
 
         return success;
     }
-
-    public static Duration noTwoWithin = new Duration(1000);
 
     public static final DateTimeFormatter RUNKEEPER_TIME_FORMAT = DateTimeFormat.forPattern("EEE, dd MMM yyyy HH:mm:ss");
 

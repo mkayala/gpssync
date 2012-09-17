@@ -1,13 +1,18 @@
 package net.ruthandtodd.gpssync.runner;
 
+import com.google.common.base.Optional;
+import net.divbyzero.gpx.GPX;
+import net.divbyzero.gpx.parser.JDOM;
+import net.divbyzero.gpx.parser.ParsingException;
+import net.ruthandtodd.gpssync.io.FileUtils;
+import net.ruthandtodd.gpssync.io.GPXWriter;
 import net.ruthandtodd.gpssync.model.Activity;
+import net.ruthandtodd.gpssync.model.GPXTools;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
 import net.ruthandtodd.gpssync.services.GantGpxGetter;
-import net.ruthandtodd.gpssync.services.rk.GpxToJsonThing;
-import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
-import net.ruthandtodd.gpssync.io.FileUtils;
 import net.ruthandtodd.gpssync.services.StravaService;
+import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 
 import java.io.File;
 import java.util.Collections;
@@ -37,14 +42,47 @@ public class Runner {
             String directory = args[1];
             File dFile = new File(directory);
             String directoryArg = dFile.getAbsolutePath();
+            if (!directoryArg.endsWith("/")) {
+                directoryArg += "/";
+            }
             List<String> newFiles = FileUtils.unknownGpxInDirectory(directoryArg);
-            addActivities(newFiles, Model.ActivityType.NONE);
-        } else if (command.equals("uploadMarked")) {
+            for (String thing : newFiles) {
+                GPX gpx = null;
+                try {
+                    gpx = new JDOM().parse(new File(directoryArg + thing));
+                    if (!Model.getModel().haveActivityWithin(GPXTools.getStartTime(gpx),
+                            Model.noTwoWithin)) {
+                        Optional<String> newFilename = GPXWriter.writeGpxDateBasedName(gpx, "file");
+                        if (newFilename.isPresent()) {
+
+
+                            Activity activity = Model.getModel().addActivityNoUser(newFilename.get(), Model.ActivityType.NONE);
+
+                        } else {
+                            System.out.println("Error writing to file. :(");
+                        }
+
+                    } else {
+
+                    }
+                } catch (ParsingException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        } else if (command.equals("uploadMarked"))
+
+        {
             uploadMarked();
-        } else if (command.equals("downloadFromRunKeeper")) {
+        } else if (command.equals("downloadFromRunKeeper"))
+
+        {
             String user = args[1];
             downloadFromRunkeeper(user);
-        } else {
+        } else
+
+        {
             System.out.println("Not sure what to do with command " + command);
             System.out.println("valid options include: ");
             System.out.println("addAllToUser user [type]");
@@ -52,7 +90,10 @@ public class Runner {
             System.out.println("addFromDirectory path");
         }
         // just in case.
-        Model.getModel().save();
+        Model.getModel().
+
+                save();
+
     }
 
     private static Model.ActivityType getType(String type) {
