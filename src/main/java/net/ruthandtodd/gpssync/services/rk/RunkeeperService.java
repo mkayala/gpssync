@@ -53,7 +53,8 @@ public class RunkeeperService {
                     Model.ActivityType.RUN, "Running",
                     Model.ActivityType.BIKE, "Cycling",
                     Model.ActivityType.HIKE, "Hiking",
-                    Model.ActivityType.NONE, "Other"
+                    Model.ActivityType.NONE, "Other",
+                    Model.ActivityType.WALK, "Walking"
             );
 
     public static class RunkeeperConfig {

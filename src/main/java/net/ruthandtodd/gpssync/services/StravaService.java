@@ -2,6 +2,8 @@ package net.ruthandtodd.gpssync.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.BiMap;
+import com.google.common.collect.ImmutableBiMap;
 import net.ruthandtodd.gpssync.io.FileUtils;
 import net.ruthandtodd.gpssync.model.Activity;
 import net.ruthandtodd.gpssync.model.Model;
@@ -19,9 +21,7 @@ import org.apache.http.message.BasicNameValuePair;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class StravaService {
 
@@ -32,14 +32,14 @@ public class StravaService {
 
     private static final String ENCODING = "UTF-8";
 
-    private static Map<Model.ActivityType, String> typeMap = new HashMap<Model.ActivityType, String>();
-
-    static {
-        typeMap.put(Model.ActivityType.RUN, "run");
-        typeMap.put(Model.ActivityType.BIKE, "ride");
-        typeMap.put(Model.ActivityType.HIKE, "hike");
-        typeMap.put(Model.ActivityType.NONE, "other");
-    }
+    private static BiMap<Model.ActivityType, String> typeMap =
+            ImmutableBiMap.of(
+                    Model.ActivityType.RUN, "run",
+                    Model.ActivityType.BIKE, "ride",
+                    Model.ActivityType.HIKE, "hike",
+                    Model.ActivityType.NONE, "other",
+                    Model.ActivityType.WALK, "walk"
+            );
 
     public boolean uploadTo(User user, Activity activity) {
         boolean success = false;
