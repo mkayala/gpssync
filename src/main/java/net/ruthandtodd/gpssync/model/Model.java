@@ -15,7 +15,7 @@ public class Model {
     }
 
     public enum ActivityType {
-        RUN("RUN"), BIKE("BIKE"), HIKE("HIKE"), NONE("NONE");
+        RUN("RUN"), BIKE("BIKE"), HIKE("HIKE"), NONE("NONE"), WALK("WALK");
 
         private final String name;
 

@@ -77,6 +77,9 @@ public class Runner {
             System.out.println("addAllToUser user [type]");
             System.out.println("addLatestToUser user [type]");
             System.out.println("addFromDirectory path");
+            System.out.println("uploadMarked");
+            System.out.println("downloadFromRunKeeper user");
+            System.out.println("retrieveFromWatch");
         }
         // just in case.
         Model.getModel().save();
