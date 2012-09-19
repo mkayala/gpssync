@@ -1,14 +1,6 @@
 package net.ruthandtodd.gpssync;
 
-import org.apache.commons.configuration.Configuration;
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.configuration.SystemConfiguration;
-
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Iterator;
+import org.apache.commons.configuration.*;
 
 public class GpssyncConfig {
 
@@ -21,23 +13,27 @@ public class GpssyncConfig {
     public String gantAuthPath;
     public String gpsbabelPath;
 
-    private final Configuration systemConfig;
+    private final CompositeConfiguration config;
 
-    private GpssyncConfig(Configuration configuration) {
-        systemConfig = configuration;
-        String baseDirectoryArg = systemConfig.getString("gpssync.basedir", "");
+    private GpssyncConfig() {
+        config = new CompositeConfiguration();
+        config.addConfiguration(new SystemConfiguration());
+
+        String baseDirectoryArg = config.getString("gpssync.basedir", "");
         if (!baseDirectoryArg.endsWith("/")) {
             baseDirectoryArg += "/";
         }
         baseDirectory = baseDirectoryArg;
         try {
-            SystemConfiguration.setSystemProperties(new PropertiesConfiguration(baseDirectory + "gpssync.properties"));
+            PropertiesConfiguration prop = new PropertiesConfiguration(baseDirectory + "gpssync.properties");
+            config.addConfiguration(prop);
         } catch (ConfigurationException e) {
             e.printStackTrace();
         }
-        gantPath = systemConfig.getString("gpssync.gantpath");
-        gantAuthPath = systemConfig.getString("gpssync.gantauth");
-        gpsbabelPath = systemConfig.getString("gpssync.gpsbabelpath");
+
+        gantPath = config.getString("gpssync.gantpath", "gant");
+        gantAuthPath = config.getString("gpssync.gantauth", "auth405");
+        gpsbabelPath = config.getString("gpssync.gpsbabelpath", "gpsbabel");
     }
 
     private String addpath(String file) {
@@ -72,7 +68,7 @@ public class GpssyncConfig {
 
     public static GpssyncConfig getConfig() {
         if (instance == null) {
-            instance = new GpssyncConfig(new SystemConfiguration());
+            instance = new GpssyncConfig();
         }
         return instance;
     }

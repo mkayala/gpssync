@@ -75,7 +75,10 @@ public class Runner {
             List<Activity> activities = addAllNewGantActivities();
         } else if (command.equals("cleanGpxDir")) {
             cleanGpxDirectory();
-        } else {
+        } else if(command.equals("testSomething")){
+            System.out.println(GpssyncConfig.getConfig().getGantPath());
+        }
+        else {
             System.out.println("Not sure what to do with command " + command);
             System.out.println("valid options include: ");
             System.out.println("addAllToUser user [type]");
