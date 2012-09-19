@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import net.divbyzero.gpx.GPX;
 import net.divbyzero.gpx.parser.JDOM;
 import net.divbyzero.gpx.parser.ParsingException;
+import net.ruthandtodd.gpssync.GpssyncConfig;
 import net.ruthandtodd.gpssync.io.FileUtils;
 import net.ruthandtodd.gpssync.io.GPXWriter;
 import net.ruthandtodd.gpssync.model.Activity;
@@ -15,6 +16,7 @@ import net.ruthandtodd.gpssync.services.StravaService;
 import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -71,7 +73,12 @@ public class Runner {
             downloadFromRunkeeper(user);
         } else if (command.equals("retrieveFromWatch")) {
             List<Activity> activities = addAllNewGantActivities();
-        } else {
+        } else if (command.equals("cleanGpxDir")) {
+            cleanGpxDirectory();
+        } else if(command.equals("testSomething")){
+            System.out.println(GpssyncConfig.getConfig().getGantPath());
+        }
+        else {
             System.out.println("Not sure what to do with command " + command);
             System.out.println("valid options include: ");
             System.out.println("addAllToUser user [type]");
@@ -176,6 +183,39 @@ public class Runner {
         Model model = Model.getModel();
         User me = model.getUserByName(user);
         new RunkeeperService().downloadGpxFromRunkeeper(me);
+        model.save();
+    }
+
+    private static void cleanGpxDirectory() {
+        GpssyncConfig config = GpssyncConfig.getConfig();
+        Model model = Model.getModel();
+        File dir = new File(config.getGpxDirectoryPath());
+        String[] children = dir.list();
+        if (children != null) {
+            for (String filename : children) {
+                if (filename.toLowerCase().endsWith("gpx")) {
+                    if (!model.haveActivityWithFilename(filename)) {
+                        try {
+                            GPX gpx = new JDOM().parse(new File(config.getGpxDirectoryPath() + filename));
+                            if (!model.haveActivityWithin(GPXTools.getStartTime(gpx),
+                                    Model.noTwoWithin)) {
+                                System.out.println("news to me: " + filename);
+                                Model.getModel().addActivityNoUser(filename, Model.ActivityType.NONE);
+                            } else {
+                                System.out.println("Going to delete: " + filename);
+                                boolean deleted = new File(config.getGpxDirectoryPath() + filename).delete();
+                                System.out.println(deleted ? "success" : "whoops");
+                            }
+
+                        } catch (ParsingException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                }
+            }
+        }
+
         model.save();
     }
 

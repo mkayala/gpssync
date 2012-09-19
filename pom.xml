@@ -51,6 +51,13 @@
             <version>2.1</version>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+            <groupId>commons-configuration</groupId>
+            <artifactId>commons-configuration</artifactId>
+            <version>1.9</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <repositories>
