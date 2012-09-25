@@ -12,6 +12,7 @@ import net.ruthandtodd.gpssync.model.GPXTools;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
 import net.ruthandtodd.gpssync.services.GantGpxGetter;
+import net.ruthandtodd.gpssync.services.HeatMapMaker;
 import net.ruthandtodd.gpssync.services.StravaService;
 import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
 
@@ -77,6 +78,19 @@ public class Runner {
             cleanGpxDirectory();
         } else if(command.equals("testSomething")){
             System.out.println(GpssyncConfig.getConfig().getGantPath());
+        }  else if(command.equals("heatmap")){
+            String user = args[1];
+            String type = args.length > 2 ? args[2] : Model.ActivityType.RUN.name();
+            String directory = args.length > 3 ? args[3] : "shapefiles_" + user + "_" + type;
+            Model.ActivityType aType = getType(type);
+            User userByName = Model.getModel().getUserByName(user);
+            List<Activity> activitiesByUser = Model.getModel().getActivitiesByUser(userByName);
+            List<Activity> activitiesOfType = new LinkedList<Activity>();
+            for(Activity a : activitiesByUser){
+                if(a.getType()==aType)
+                    activitiesOfType.add(a);
+            }
+            new HeatMapMaker().createDirectoryOfShapeFiles(activitiesOfType, directory);
         }
         else {
             System.out.println("Not sure what to do with command " + command);

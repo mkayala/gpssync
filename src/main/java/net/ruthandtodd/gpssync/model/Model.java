@@ -130,4 +130,8 @@ public class Model {
     public Set<Activity> getAllActivities() {
         return allActivities;
     }
+
+    public List<Activity> getActivitiesByUser(User u){
+        return activitiesByUser.get(u);
+    }
 }
