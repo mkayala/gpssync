@@ -38,20 +38,27 @@ something cool, that's great.
   - Could pretty trivially be extended to use gpsbabel to download
     from devices where possible; my own device requires gant. 
 
-## Compilation
-I need to mavenize this or something. In the meantime, you need the
-following java libraries: 
-- httpclient4
-  http://hc.apache.org/ 
-- jackson 
-  http://jackson.codehaus.org/
-- jgpx (which has a couple of requirements of its own)
+## Compilation & Execution
+You need to manually download the following java library:
+- jgpx
   http://code.google.com/p/jgpx/
-- jetty (only for the Runkeeper oauth part)
-  http://jetty.codehaus.org/jetty/
-- joda time (lol, dates in java)
-  http://joda-time.sourceforge.net/
-- probably something else I forgot 
+
+A good way to do this is:
+ svn checkout http://jgpx.googlecode.com/svn/trunk/ jgpx-read-only
+ mv jgpx-read-only/src/net/divbyzero src/main/java/net
+ rm -rf src/main/java/net/divbyzero/gpx/tests
+ rm -rf jgpx-read-only
+
+Then you should be able to compile with
+
+ mvn compile
+ mvn assembly:single
+
+And run with
+
+ java -cp target/gpssync-0.1-jar-with-dependencies.jar \
+  -Dgpssync.basedir=[your base dir] net.ruthandtodd.gpssync.runner.Runner [command] [args]
+
 
 ## Binary dependencies
 You need a couple of external executables to talk to Garmin devices. 
@@ -122,5 +129,8 @@ addLatestToUser user [type]
 addFromDirectory path
   adds any gpx found in path, with no user
 uploadMarked
-  uploads any activites marked
-
+  uploads any activities marked
+retrieveFromWatch
+  retrieve recent activities from watch, but don't add them to any user
+downloadFromRunKeeper user
+  download all of a user's RunKeeper activities and save them as gpx files

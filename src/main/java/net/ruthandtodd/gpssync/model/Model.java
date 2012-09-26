@@ -8,12 +8,14 @@ import java.util.*;
 
 public class Model {
 
+    public static final Duration noTwoWithin = new Duration(1000);
+
     public enum Service {
         RUNKEEPER, STRAVA
     }
 
     public enum ActivityType {
-        RUN("RUN"), BIKE("BIKE"), HIKE("HIKE"), NONE("NONE");
+        RUN("RUN"), BIKE("BIKE"), HIKE("HIKE"), NONE("NONE"), WALK("WALK");
 
         private final String name;
 
@@ -117,7 +119,8 @@ public class Model {
         for (Activity a : allActivities) {
             DateTime first = time.isBefore(a.getStartTime()) ? time : a.getStartTime();
             DateTime second = time.isBefore(a.getStartTime()) ? a.getStartTime() : time;
-            if (within.isShorterThan(new Duration(first, second))) {
+            if (within.isLongerThan(new Duration(first, second))) {
+                System.out.println(first + " too close to " + second);
                 return true;
             }
         }
@@ -126,5 +129,9 @@ public class Model {
 
     public Set<Activity> getAllActivities() {
         return allActivities;
+    }
+
+    public List<Activity> getActivitiesByUser(User u){
+        return activitiesByUser.get(u);
     }
 }

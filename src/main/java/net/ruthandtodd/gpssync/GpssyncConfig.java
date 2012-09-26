@@ -1,8 +1,6 @@
 package net.ruthandtodd.gpssync;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import org.apache.commons.configuration.*;
 
 public class GpssyncConfig {
 
@@ -15,41 +13,27 @@ public class GpssyncConfig {
     public String gantAuthPath;
     public String gpsbabelPath;
 
+    private final CompositeConfiguration config;
+
     private GpssyncConfig() {
-        String baseDirectoryArg = System.getProperty("gpssync.basedir", "");
+        config = new CompositeConfiguration();
+        config.addConfiguration(new SystemConfiguration());
+
+        String baseDirectoryArg = config.getString("gpssync.basedir", "");
         if (!baseDirectoryArg.endsWith("/")) {
             baseDirectoryArg += "/";
         }
         baseDirectory = baseDirectoryArg;
-
         try {
-            loadPropertiesFile(baseDirectory + "gpssync.properties");
-        } catch (IOException e) {
-            System.out.println("Failed to load configuration, garmin stuff won't work.");
+            PropertiesConfiguration prop = new PropertiesConfiguration(baseDirectory + "gpssync.properties");
+            config.addConfiguration(prop);
+        } catch (ConfigurationException e) {
+            e.printStackTrace();
         }
-    }
 
-    private void loadPropertiesFile(String path) throws IOException {
-        BufferedReader fileReader = new BufferedReader(
-                new FileReader(path));
-        String sRead = null;
-        do {
-            sRead = fileReader.readLine();
-            if (sRead != null) {
-                String[] split = sRead.split("=");
-                if (split.length == 2) {
-                    String name = split[0].trim();
-                    String value = split[1].trim();
-                    if (name.equals("gpssync.gantpath")) {
-                        gantPath = value;
-                    } else if (name.equals("gpssync.gantauth")) {
-                        gantAuthPath = value;
-                    } else if (name.equals("gpssync.gpsbabelpath")) {
-                        gpsbabelPath = value;
-                    }
-                }
-            }
-        } while (sRead != null);
+        gantPath = config.getString("gpssync.gantpath", "gant");
+        gantAuthPath = config.getString("gpssync.gantauth", "auth405");
+        gpsbabelPath = config.getString("gpssync.gpsbabelpath", "gpsbabel");
     }
 
     private String addpath(String file) {
