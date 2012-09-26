@@ -22,7 +22,7 @@ public class HeatMapMaker {
     }
 
     private void gpxFileToShapeFile(String dirname, String gpxFile, boolean append) {
-        // make the gant call
+
         Runtime r = Runtime.getRuntime();
         Process p = null;
         try {
