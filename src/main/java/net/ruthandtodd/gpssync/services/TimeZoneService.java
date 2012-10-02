@@ -24,7 +24,9 @@ public class TimeZoneService {
     }
 
     public static String getTimeZone(double lat, double lon) throws IOException {
-        HttpGet get = new HttpGet("http://where.yahooapis.com/geocode?location=" + lat + "," + lon + "&flags=TJ&gflags=R");
+        String request = "http://where.yahooapis.com/geocode?location=" + lat + "," + lon + "&flags=TJ&gflags=R";
+        System.out.println(request);
+        HttpGet get = new HttpGet(request);
         HttpClient httpclient = new DefaultHttpClient();
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         String userGetResult = httpclient.execute(get, responseHandler);
@@ -40,6 +42,10 @@ public class TimeZoneService {
             resultNode = null;
         }
         return resultNode.get("timezone").asText();
+    }
+
+    public static void main(String ... args){
+        System.out.println(getDateTimeZone(45.51, -122.70));
     }
 
 }
