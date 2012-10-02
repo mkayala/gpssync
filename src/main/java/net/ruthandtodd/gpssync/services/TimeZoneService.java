@@ -13,7 +13,7 @@ import java.io.IOException;
 
 public class TimeZoneService {
 
-     public static DateTimeZone getDateTimeZone(double lat, double lon){
+    public static DateTimeZone getDateTimeZone(double lat, double lon) {
         try {
             String tz = getTimeZone(lat, lon);
             return DateTimeZone.forID(tz);
@@ -24,13 +24,21 @@ public class TimeZoneService {
     }
 
     public static String getTimeZone(double lat, double lon) throws IOException {
-        HttpGet get = new HttpGet("http://where.yahooapis.com/geocode?location="+ lat +"," + lon + "&flags=TJ&gflags=R");
+        HttpGet get = new HttpGet("http://where.yahooapis.com/geocode?location=" + lat + "," + lon + "&flags=TJ&gflags=R");
         HttpClient httpclient = new DefaultHttpClient();
         ResponseHandler<String> responseHandler = new BasicResponseHandler();
         String userGetResult = httpclient.execute(get, responseHandler);
         JsonNode rootNode = new ObjectMapper().readValue(userGetResult, JsonNode.class);
         JsonNode resultSetNode = rootNode.get("ResultSet");
-        JsonNode resultNode = resultSetNode.get("Results").get(0);
+        JsonNode resultNode;
+        if (resultSetNode.has("Results")) {
+            resultNode = resultSetNode.get("Results").get(0);
+        } else if (resultSetNode.has("Result")) {
+            resultNode = resultSetNode.get("Result");
+        } else {
+            System.out.println("you're about to get an npe, homie.");
+            resultNode = null;
+        }
         return resultNode.get("timezone").asText();
     }
 
