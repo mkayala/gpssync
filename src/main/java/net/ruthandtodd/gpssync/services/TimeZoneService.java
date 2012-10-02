@@ -2,6 +2,7 @@ package net.ruthandtodd.gpssync.services;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.ruthandtodd.gpssync.GpssyncConfig;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
@@ -41,11 +42,16 @@ public class TimeZoneService {
             System.out.println("you're about to get an npe, homie.");
             resultNode = null;
         }
-        return resultNode.get("timezone").asText();
+        if(resultNode != null && resultNode.has("timezone"))
+            return resultNode.get("timezone").asText();
+        else
+            return GpssyncConfig.getConfig().getDefaultTimezone();
+
     }
 
     public static void main(String ... args){
         System.out.println(getDateTimeZone(45.51, -122.70));
+        System.out.println(getDateTimeZone(33, -125));
     }
 
 }

@@ -8,6 +8,7 @@ public class GpssyncConfig {
     public static final String ACCOUNTS_FILE = "gpssync_people.csv";
     public static final String ACTIVITIES_FILE = "gpssync_activities.csv";
     public static final String GPX_DIRECTORY = "gpx/";
+    private String defaultTimezone;
 
     public String gantPath;
     public String gantAuthPath;
@@ -19,7 +20,7 @@ public class GpssyncConfig {
         config = new CompositeConfiguration();
         config.addConfiguration(new SystemConfiguration());
 
-        String baseDirectoryArg = config.getString("gpssync.basedir", "");
+        String baseDirectoryArg = config.getString("gpssync.basedir", ".");
         if (!baseDirectoryArg.endsWith("/")) {
             baseDirectoryArg += "/";
         }
@@ -28,12 +29,14 @@ public class GpssyncConfig {
             PropertiesConfiguration prop = new PropertiesConfiguration(baseDirectory + "gpssync.properties");
             config.addConfiguration(prop);
         } catch (ConfigurationException e) {
+            System.out.println("May have failed to load gpssync.properties file.");
             e.printStackTrace();
         }
 
         gantPath = config.getString("gpssync.gantpath", "gant");
         gantAuthPath = config.getString("gpssync.gantauth", "auth405");
         gpsbabelPath = config.getString("gpssync.gpsbabelpath", "gpsbabel");
+        defaultTimezone = config.getString("gpssync.defaulttimezone", "UTC");
     }
 
     private String addpath(String file) {
@@ -62,6 +65,10 @@ public class GpssyncConfig {
 
     public String getGpsbabelPath() {
         return gpsbabelPath;
+    }
+
+    public String getDefaultTimezone() {
+        return defaultTimezone;
     }
 
     private static GpssyncConfig instance;
