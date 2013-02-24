@@ -5,19 +5,18 @@ import net.divbyzero.gpx.GPX;
 import net.divbyzero.gpx.parser.JDOM;
 import net.divbyzero.gpx.parser.ParsingException;
 import net.ruthandtodd.gpssync.GpssyncConfig;
+import net.ruthandtodd.gpssync.devices.DeviceInterfaceFactory;
 import net.ruthandtodd.gpssync.io.FileUtils;
 import net.ruthandtodd.gpssync.io.GPXWriter;
 import net.ruthandtodd.gpssync.model.Activity;
 import net.ruthandtodd.gpssync.model.GPXTools;
 import net.ruthandtodd.gpssync.model.Model;
 import net.ruthandtodd.gpssync.model.User;
-import net.ruthandtodd.gpssync.services.GantGpxGetter;
 import net.ruthandtodd.gpssync.services.HeatMapMaker;
-import net.ruthandtodd.gpssync.services.StravaService;
 import net.ruthandtodd.gpssync.services.rk.RunkeeperService;
+import net.ruthandtodd.gpssync.services.StravaService;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,13 +31,13 @@ public class Runner {
             String user = args[1];
             String type = args.length > 2 ? args[2] : "";
             Model.ActivityType aType = getType(type);
-            addAllNewGantActivitiesToUser(user, aType);
+            addAllNewActivitiesToUser(user, aType);
         } else if (command.equals("addLatestToUser")) {
             String userId = args[1];
             String type = args.length > 2 ? args[2] : "";
             Model.ActivityType aType = getType(type);
             User user = Model.getModel().getUserByName(userId);
-            Activity activity = addAllNewGantActivitiesAndLastToUser(userId, aType);
+            Activity activity = addAllNewActivitiesAndLastToUser(userId, aType);
             if (user.getRunkeeperAuth() != null && !user.getRunkeeperAuth().isEmpty())
                 new RunkeeperService().uploadTo(user, activity);
             if (user.getStravaEmail() != null && !user.getStravaEmail().isEmpty())
@@ -73,7 +72,7 @@ public class Runner {
             String user = args[1];
             downloadFromRunkeeper(user);
         } else if (command.equals("retrieveFromWatch")) {
-            List<Activity> activities = addAllNewGantActivities();
+            List<Activity> activities = addAllNewActivities();
         } else if (command.equals("cleanGpxDir")) {
             cleanGpxDirectory();
         } else if(command.equals("testSomething")){
@@ -117,23 +116,23 @@ public class Runner {
         return aType;
     }
 
-    private static void addAllNewGantActivitiesToUser(String username, Model.ActivityType type) {
-        List<String> newestActivities = new GantGpxGetter().getNewestActivities();
+    private static void addAllNewActivitiesToUser(String username, Model.ActivityType type) {
+        List<String> newestActivities = DeviceInterfaceFactory.getFactory().getPreferredInterface().getNewestActivities();
         addActivitiesToUserAsType(newestActivities, username, type);
 
     }
 
-    private static List<Activity> addAllNewGantActivities() {
+    private static List<Activity> addAllNewActivities() {
         Model model = Model.getModel();
-        List<String> newestActivities = new GantGpxGetter().getNewestActivities();
+        List<String> newestActivities = DeviceInterfaceFactory.getFactory().getPreferredInterface().getNewestActivities();
         List<Activity> activities = addActivities(newestActivities, Model.ActivityType.NONE);
         model.save();
         return activities;
     }
 
-    private static Activity addAllNewGantActivitiesAndLastToUser(String username, Model.ActivityType type) {
+    private static Activity addAllNewActivitiesAndLastToUser(String username, Model.ActivityType type) {
         Model model = Model.getModel();
-        List<String> newestActivities = new GantGpxGetter().getNewestActivities();
+        List<String> newestActivities = DeviceInterfaceFactory.getFactory().getPreferredInterface().getNewestActivities();
         if (newestActivities.size() > 1) {
             Collections.sort(newestActivities);
             List<String> olderActivities = newestActivities.subList(0, newestActivities.size() - 1);
