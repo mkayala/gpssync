@@ -12,6 +12,7 @@ public class GpssyncConfig {
     public static final String ACCOUNTS_FILE = "gpssync_people.csv";
     public static final String ACTIVITIES_FILE = "gpssync_activities.csv";
     public static final String GPX_DIRECTORY = "gpx/";
+    public static final String GMN_DIRECTORY = "gmn/";
     private String defaultTimezone;
 
     private String gantPath;
@@ -21,7 +22,10 @@ public class GpssyncConfig {
     private String fitpath;
     private DateTime lastFitTime;
     private String fit2csvPath;
-
+    
+    private String gsaverunsPath;
+    private String ggpxPath;
+    
     private CompositeConfiguration config;
     private PropertiesConfiguration prop;
 
@@ -60,6 +64,9 @@ public class GpssyncConfig {
         long configLong = config.getLong(FIT_TIME_KEY, 0l);
         lastFitTime = new DateTime(configLong, DateTimeZone.UTC);
 
+        gsaverunsPath = config.getString("gpssync.gsaverunspath", "garmin_save_runs");
+        ggpxPath = config.getString("gpssync.ggpxpath", "garmin_gpx");
+        
         String channelString = config.getString("gpssync.devicetype",
                 DeviceInterfaceFactory.Channel.ANT.name());
         preferredChannel = DeviceInterfaceFactory.Channel.valueOf(channelString);
@@ -132,4 +139,11 @@ public class GpssyncConfig {
         return preferredChannel;
     }
 
+	public String getGgpxPath() {
+		return ggpxPath;
+	}
+
+	public String getGsaverunsPath() {
+		return gsaverunsPath;
+	}
 }

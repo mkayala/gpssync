@@ -9,7 +9,7 @@ import java.util.Map;
 public class DeviceInterfaceFactory {
 
     public static enum Channel{
-        USB, ANT, FIT
+        USB, ANT, FIT, GMNTOOLS
     }
 
     private DeviceInterfaceFactory(){
@@ -24,7 +24,8 @@ public class DeviceInterfaceFactory {
 
     Map<Channel, DeviceInterface> map =
             ImmutableMap.<Channel, DeviceInterface>of(Channel.ANT, new GantGpxGetter(),
-            Channel.FIT, new FitGpxGetter());
+            Channel.FIT, new FitGpxGetter(), 
+            Channel.GMNTOOLS, new GarminToolsGpxGetter());
 
     public DeviceInterface getInterfaceForChannel(Channel channel){
         return map.get(channel);
